@@ -1,0 +1,22 @@
+{
+  "name": "Rodando UTP GreenShare",
+  "short_name": "Rodando UTP",
+  "description": "Aplicación PWA para compartir viajes universitarios con Rodando Parking y EcoRodando.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f6fbf6",
+  "theme_color": "#1e7b46",
+  "icons": [
+    {
+      "src": "/img/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/img/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}

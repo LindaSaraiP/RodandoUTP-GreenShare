@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#1e7b46">
+  <title>Verificar pase | Rodando Parking</title>
+  <link rel="icon" href="/img/icon-192.png">
+  <link rel="stylesheet" href="/css/styles.css?v=6.1.0">
+  <style>
+    .verify-page { min-height: 100vh; padding: 48px 0 72px; }
+    .verify-top { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:36px; }
+    .verify-pass { max-width: 760px; margin: 0 auto; padding: clamp(24px, 5vw, 44px); background: linear-gradient(135deg,#16482d,#208148); color:#fff; }
+    .verify-pass h1 { font-size: clamp(1.65rem, 4vw, 2.6rem); line-height:1.12; margin-bottom:12px; }
+    .verify-state { display:inline-flex; padding:10px 16px; border-radius:999px; background:#e4f8df; color:#185c32; font-weight:900; margin-bottom:16px; }
+    .verify-state.invalid { background:#ffe5d9; color:#8b312e; }
+    .verify-count { margin:18px 0; padding:22px; border-radius:26px; background:rgba(255,255,255,.14); text-align:center; }
+    .verify-count strong { display:block; font-size: clamp(4rem, 13vw, 7rem); line-height:1; font-weight:900; }
+    .verify-count span { font-size:1.05rem; text-transform:uppercase; letter-spacing:.15em; font-weight:800; }
+    .verify-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
+    .verify-meta div,.verify-person { border:1px solid rgba(255,255,255,.18); border-radius:20px; padding:15px; background:rgba(255,255,255,.09); min-width:0; }
+    .verify-meta span,.verify-person small { display:block; color:rgba(255,255,255,.82); font-size:.85rem; }
+    .verify-meta strong { display:block; font-size:1rem; overflow-wrap:anywhere; }
+    .verify-person { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; margin-bottom:10px; }
+    .verify-person strong { display:block; font-size:1.12rem; }
+    .verify-person small { overflow-wrap:anywhere; }
+    .verify-help { font-size:.91rem; color:rgba(255,255,255,.85); margin-top:18px; }
+    @media(max-width:540px){.verify-meta{grid-template-columns:1fr}.verify-person{flex-direction:column}}
+  </style>
+</head>
+<body>
+  <main class="verify-page container">
+    <div class="verify-top">
+      <a class="brand" href="/"><span class="brand-logo">R</span><span class="brand-copy"><strong>Rodando UTP</strong><small>Rodando Parking</small></span></a>
+      <a class="pill-btn outline" href="/">Inicio</a>
+    </div>
+    <article class="card verify-pass">
+      <span class="eyebrow" style="color:#e8ffbc">Verificación de acceso</span>
+      <h1>Rodando Parking</h1>
+      <div class="verify-state" id="verifyState">Comprobando el pase...</div>
+      <p id="verifyIntro">Consulta en línea los datos del viaje y de las personas registradas.</p>
+      <div class="verify-count"><strong id="verifyCount">—</strong><span>Pasajeros confirmados</span></div>
+      <div class="verify-meta" id="verifyMeta"></div>
+      <h2 style="font-size:1.35rem;margin:24px 0 12px">Integrantes del viaje</h2>
+      <div id="verifyPassengers"></div>
+      <p class="verify-help">Este pase es un comprobante digital del proyecto. Su aceptación para estacionamiento preferente depende de la autorización de la universidad.</p>
+    </article>
+  </main>
+  <script src="/js/verificar-pase.js?v=6.1.0" defer></script>
+</body>
+</html>
