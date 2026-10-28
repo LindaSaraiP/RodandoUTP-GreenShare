@@ -293,3 +293,18 @@ body { overflow-x: clip; }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
 }
+
+/* Centro de avisos: estética ecológica y adaptación móvil */
+.notificaciones-panel{padding:28px;border-radius:30px;background:linear-gradient(160deg,#fff,#f3faf4);border:1px solid #c9e4cd}
+.aviso-controls{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:16px}
+.aviso-list{display:grid;gap:12px;margin-top:20px}
+.aviso-item{display:flex;justify-content:space-between;gap:20px;align-items:flex-start;border:1px solid #cae4ce;border-radius:18px;background:#fff;padding:18px}
+.aviso-item strong{color:#175d34;font-size:1.03rem}
+.aviso-item p{color:#425e4b;margin:6px 0}
+.aviso-item small{color:#6c7b6f}
+.aviso-item.aviso-leido{opacity:.72;background:#f7faf7}
+.aviso-actions{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.aviso-admin{margin-top:24px;padding:20px;border-radius:22px;background:#e9f6e9;display:grid;gap:12px}
+.aviso-admin label{display:grid;gap:8px;font-weight:650}
+.aviso-admin h3{font-size:1.2rem}
+@media(max-width:700px){.aviso-item{flex-direction:column}.aviso-controls .pill-btn{width:100%}.notificaciones-panel{padding:18px}}

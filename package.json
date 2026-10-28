@@ -1,13 +1,22 @@
 {
   "name": "rodando-utp-greenshare",
-  "version": "6.1.0",
+  "version": "6.3.0",
   "private": true,
   "type": "commonjs",
   "scripts": {
     "dev": "node server.js",
-    "start": "node server.js"
+    "start": "node server.js",
+    "db:init": "node scripts/init-db.js",
+    "db:check": "node scripts/check-db.js",
+    "seed": "node scripts/seed-demo.js",
+    "db:import": "node scripts/import-sqlite.js"
   },
   "engines": {
     "node": ">=22.5.0"
+  },
+  "dependencies": {
+    "pg": "^8.13.0",
+    "dotenv": "^16.4.5",
+    "web-push": "^3.6.7"
   }
 }

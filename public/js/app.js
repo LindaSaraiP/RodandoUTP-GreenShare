@@ -126,6 +126,7 @@ function renderCommunity(stats) {
 
 function renderAuthState() {
   const logged = !!state.user;
+  window.dispatchEvent(new CustomEvent('rodando:session', { detail: { user: state.user, csrfToken: state.csrfToken } }));
   els.loginBtn.hidden = logged; els.registerBtn.hidden = logged; els.userMenuBtn.hidden = !logged;
   els.dashboard.hidden = !logged;
   const isAdmin = logged && state.user.role === 'admin';
@@ -459,6 +460,7 @@ els.registerBtn.addEventListener('click', () => openAuth('register'));
 els.switchAuthMode.addEventListener('click', () => openAuth(els.authMode.value === 'login' ? 'register' : 'login'));
 els.userMenuBtn.addEventListener('click', () => els.accountModal.showModal());
 els.logoutBtn.addEventListener('click', async () => {
+  await window.RodandoPush?.disconnectCurrentUser();
   try { await api('/api/logout', { method: 'POST' }); } catch {}
   state.user = null; els.accountModal.close(); await refreshEverything(); toast('Sesión cerrada.');
 });

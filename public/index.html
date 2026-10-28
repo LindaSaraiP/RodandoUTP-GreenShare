@@ -8,7 +8,7 @@
   <title>Rodando UTP GreenShare</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" href="/img/icon-192.png" />
-  <link rel="stylesheet" href="/css/styles.css?v=6.1.0" />
+  <link rel="stylesheet" href="/css/styles.css?v=6.3.0" />
 </head>
 <body>
   <div class="page-glow glow-1"></div>
@@ -26,6 +26,7 @@
         <a href="#impacto">Impacto ecológico</a>
         <a href="#parking">Rodando Parking</a>
         <a href="#ecorodando">EcoRodando</a>
+        <button class="pill-btn outline" type="button" id="notificationsNav" hidden>Avisos<span id="notificationUnread" hidden></span></button>
         <a href="#adminPanel" id="adminLink" hidden>Administración</a>
         <button class="pill-btn outline" id="installBtn" hidden>Instalar PWA</button>
         <button class="pill-btn outline" id="loginBtn">Iniciar sesión</button>
@@ -247,6 +248,32 @@
       </div>
     </section>
 
+
+    <section class="container section" id="avisos" hidden>
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Comunicaciones de Rodando UTP</span>
+          <h2>Centro de avisos</h2>
+          <p>Activa notificaciones push o revisa aquí el historial de avisos de tu cuenta.</p>
+        </div>
+      </div>
+      <div class="card notificaciones-panel">
+        <div class="aviso-controls">
+          <button class="pill-btn solid" id="enablePush" type="button">Activar notificaciones</button>
+          <button class="pill-btn outline" id="disablePush" type="button">Desactivar</button>
+          <button class="pill-btn outline" id="sendPushTest" type="button">Enviar prueba a mi cuenta</button>
+        </div>
+        <p class="helper" id="notificationStatus" role="status" aria-live="polite"></p>
+        <div id="notificationList" class="aviso-list" aria-label="Historial de avisos"></div>
+        <div id="adminPushBox" hidden><form id="broadcastForm" class="aviso-admin">
+          <h3>Aviso general (solo administrador)</h3>
+          <label>Título <input name="title" maxlength="90" required placeholder="Cambio de horario" /></label>
+          <label>Mensaje <textarea name="body" maxlength="230" minlength="8" required placeholder="Información breve para los estudiantes"></textarea></label>
+          <button class="pill-btn solid" type="submit">Enviar aviso general</button>
+        </form></div>
+      </div>
+    </section>
+
     <section class="container section admin-panel" id="adminPanel" hidden>
       <div class="section-head inline-head">
         <div>
@@ -395,6 +422,7 @@
 
   <div class="toast-stack" id="toastStack"></div>
   <script src="/js/qr.js?v=6.1.0" defer></script>
-  <script src="/js/app.js?v=6.1.0" defer></script>
+  <script src="/js/notifications.js?v=6.3.0" defer></script>
+  <script src="/js/app.js?v=6.3.0" defer></script>
 </body>
 </html>
