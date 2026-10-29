@@ -457,7 +457,7 @@ async function handleApi(req, res, url, ip) {
       if (!ride || Number(ride.driver_id) !== Number(s.row.user_id)) throw errorWithStatus('Solo el conductor puede generar el pase.', 403);
       if (!ride.parking_eligible || ride.status === 'cancelled') throw errorWithStatus('Esta ruta no participa en Rodando Parking.');
       const pax = await value(client, "SELECT COUNT(*) AS n FROM reservations WHERE ride_id=$1 AND status='confirmed'", [rideId]);
-      if (asNumber(pax.n) < 2) throw errorWithStatus('Se requieren al menos 2 pasajeros confirmados.');
+      if (asNumber(pax.n) < 1) throw errorWithStatus('Se requieren al menos 1 pasajero confirmado.');
       code = ride.parking_code || `RUP-${rideId}-${randomToken(18)}`;
       generatedAt = ride.parking_generated_at || nowIso();
       if (!ride.parking_code) {
