@@ -326,38 +326,79 @@ function dashboardItem(ride, mine = true) {
       const complete = document.createElement('button'); complete.className = 'pill-btn solid mini'; complete.textContent = 'Finalizar viaje'; complete.addEventListener('click', () => completeRide(ride.id)); actions.append(complete);
     }
   }
-  if (ride.parkingCode) {
-    const passCard = document.createElement('div');
-    passCard.className = 'dashboard-pass-card';
-    passCard.innerHTML = `
-      <div class="parking-pass-hero">
-        <div><small>Pase Rodando Parking</small><h3>${htmlEscape(ride.parkingCode)}</h3></div>
-          <div class="passenger-count-block">
-            <span>OCUPANTES</span>
-            <strong>${Number(ride.passengerCount || 0) + 1}</strong>
-            <small>Conductor + pasajeros</small>
+
+if (ride.parkingCode) {
+  const passCard = document.createElement('div');
+  passCard.className = 'dashboard-pass-card';
+
+  const totalOcupantes = Number(ride.passengerCount || 0) + 1;
+
+  passCard.innerHTML = `
+    <div class="parking-pass-hero">
+      <div>
+        <small>Pase Rodando Parking</small>
+        <h3>${htmlEscape(ride.parkingCode)}</h3>
+      </div>
+
+      <div class="passenger-count-block">
+        <span>OCUPANTES</span>
+        <strong>${totalOcupantes}</strong>
+        <small>Conductor + pasajeros</small>
+      </div>
+    </div>
+
+    <div class="passenger-list">
+      ${ride.passengers.map(p => `
+        <div class="passenger-row">
+          <div>
+            <strong>${htmlEscape(p.name)}</strong>
+            <small>${htmlEscape(p.career || '')}</small>
+          </div>
+          <div>
+            <small>${htmlEscape(p.studentId)}</small>
           </div>
         </div>
-      <div class="passenger-list">${ride.passengers.map(p => `<div class="passenger-row"><div><strong>${htmlEscape(p.name)}</strong><small>${htmlEscape(p.career || '')}</small></div><div><small>${htmlEscape(p.studentId)}</small></div></div>`).join('')}</div>
-      <div class="parking-pass-footer"><div class="qr-box"></div><div><p>Este pase hace visible la ocupación compartida del vehículo.</p><p class="helper">Conductor: ${htmlEscape(ride.driver.name)}</p></div></div>`;
-    renderQr($('.qr-box', passCard), parkingVerificationUrl(ride.parkingCode));
-    const downloadBtn = document.createElement('button');
-    downloadBtn.type = 'button';
-    downloadBtn.className = 'btn download-pass-btn';
-    downloadBtn.textContent = 'Descargar pase PDF';
+      `).join('')}
+    </div>
 
-    downloadBtn.addEventListener('click', () => {
-      document.querySelectorAll('.dashboard-pass-card.print-target')
-        .forEach(card => card.classList.remove('print-target'));
+    <div class="parking-pass-footer">
+      <div class="qr-box"></div>
+      <div>
+        <p>Este pase acredita la ocupación compartida del vehículo.</p>
+        <p class="helper">
+          Conductor: ${htmlEscape(ride.driver.name)}
+        </p>
+      </div>
+    </div>
+  `;
 
-      passCard.classList.add('print-target');
-      window.print();
-    });
+  // Generar código QR
+  renderQr(
+    $('.qr-box', passCard),
+    parkingVerificationUrl(ride.parkingCode)
+  );
 
-    passCard.append(downloadBtn);
-    wrap.append(passCard);
-  }
-  return wrap;
+  // Botón para guardar como PDF
+  const downloadBtn = document.createElement('button');
+  downloadBtn.type = 'button';
+  downloadBtn.className = 'btn download-pass-btn';
+  downloadBtn.textContent = 'Descargar pase PDF';
+
+  downloadBtn.addEventListener('click', () => {
+    document.querySelectorAll('.dashboard-pass-card.print-target')
+      .forEach(card => card.classList.remove('print-target'));
+
+    passCard.classList.add('print-target');
+    window.print();
+  });
+
+  passCard.append(downloadBtn);
+  wrap.append(passCard);
+}
+
+return wrap;
+
+
 }
 function reservationItem(entry) {
   const ride = entry.ride;
