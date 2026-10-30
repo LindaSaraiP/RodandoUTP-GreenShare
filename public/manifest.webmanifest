@@ -1,22 +1,50 @@
 {
+  "id": "/",
   "name": "Rodando UTP GreenShare",
   "short_name": "Rodando UTP",
-  "description": "Aplicación PWA para compartir viajes universitarios con Rodando Parking y EcoRodando.",
+  "description": "Aplicación PWA para compartir viajes universitarios con Rodando Parking, mapas y EcoRodando.",
+  "lang": "es-MX",
+  "dir": "ltr",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
+  "display_override": ["window-controls-overlay", "standalone", "minimal-ui"],
+  "orientation": "portrait-primary",
   "background_color": "#f6fbf6",
   "theme_color": "#1e7b46",
+  "categories": ["travel", "education", "productivity"],
   "icons": [
     {
       "src": "/img/icon-192.png",
       "sizes": "192x192",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
     },
     {
       "src": "/img/icon-512.png",
       "sizes": "512x512",
-      "type": "image/png"
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Buscar viaje",
+      "short_name": "Buscar",
+      "description": "Encuentra rutas compatibles hacia la UTP o de regreso.",
+      "url": "/#viajes"
+    },
+    {
+      "name": "Rodando Parking",
+      "short_name": "Parking",
+      "description": "Consulta y genera tu pase de estacionamiento colaborativo.",
+      "url": "/#parking"
+    },
+    {
+      "name": "Mi mundo EcoRodando",
+      "short_name": "EcoRodando",
+      "description": "Revisa tu nivel y tus EcoPuntos.",
+      "url": "/#ecorodando"
     }
   ]
 }

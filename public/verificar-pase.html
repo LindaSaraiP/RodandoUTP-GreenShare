@@ -4,48 +4,93 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#1e7b46">
+  <meta name="description" content="Verificación pública del pase Rodando Parking de Rodando UTP GreenShare.">
   <title>Verificar pase | Rodando Parking</title>
   <link rel="icon" href="/img/icon-192.png">
-  <link rel="stylesheet" href="/css/styles.css?v=6.1.0">
+  <link rel="stylesheet" href="/css/styles.css?v=6.4.1">
   <style>
-    .verify-page { min-height: 100vh; padding: 48px 0 72px; }
-    .verify-top { display:flex; align-items:center; justify-content:space-between; gap:16px; margin-bottom:36px; }
-    .verify-pass { max-width: 760px; margin: 0 auto; padding: clamp(24px, 5vw, 44px); background: linear-gradient(135deg,#16482d,#208148); color:#fff; }
-    .verify-pass h1 { font-size: clamp(1.65rem, 4vw, 2.6rem); line-height:1.12; margin-bottom:12px; }
-    .verify-state { display:inline-flex; padding:10px 16px; border-radius:999px; background:#e4f8df; color:#185c32; font-weight:900; margin-bottom:16px; }
-    .verify-state.invalid { background:#ffe5d9; color:#8b312e; }
-    .verify-count { margin:18px 0; padding:22px; border-radius:26px; background:rgba(255,255,255,.14); text-align:center; }
-    .verify-count strong { display:block; font-size: clamp(4rem, 13vw, 7rem); line-height:1; font-weight:900; }
-    .verify-count span { font-size:1.05rem; text-transform:uppercase; letter-spacing:.15em; font-weight:800; }
-    .verify-meta { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:12px; }
-    .verify-meta div,.verify-person { border:1px solid rgba(255,255,255,.18); border-radius:20px; padding:15px; background:rgba(255,255,255,.09); min-width:0; }
-    .verify-meta span,.verify-person small { display:block; color:rgba(255,255,255,.82); font-size:.85rem; }
-    .verify-meta strong { display:block; font-size:1rem; overflow-wrap:anywhere; }
-    .verify-person { display:flex; align-items:flex-start; justify-content:space-between; gap:15px; margin-bottom:10px; }
-    .verify-person strong { display:block; font-size:1.12rem; }
-    .verify-person small { overflow-wrap:anywhere; }
-    .verify-help { font-size:.91rem; color:rgba(255,255,255,.85); margin-top:18px; }
-    @media(max-width:540px){.verify-meta{grid-template-columns:1fr}.verify-person{flex-direction:column}}
+    .verify-page { min-height: 100vh; padding: 42px 0 72px; }
+    .verify-top { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-bottom: 30px; flex-wrap: wrap; }
+    .verify-pass { max-width: 820px; margin: 0 auto; padding: clamp(24px, 5vw, 46px); background: linear-gradient(145deg, #103823, #1c6a3c 52%, #3f9c5b); color: #fff; }
+    .verify-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 18px; flex-wrap: wrap; }
+    .verify-pass h1 { font-size: clamp(1.7rem, 4vw, 2.7rem); line-height: 1.1; margin: 4px 0 10px; }
+    .verify-state { display: inline-flex; align-items: center; gap: 10px; padding: 11px 18px; border-radius: 999px; background: #e4f8df; color: #145a2f; font-weight: 900; letter-spacing: .02em; }
+    .verify-state::before { content: ''; width: 10px; height: 10px; border-radius: 50%; background: #238847; }
+    .verify-state.invalid { background: #ffe6df; color: #8a2f2b; }
+    .verify-state.invalid::before { background: #b4423c; }
+    .verify-state.pending { background: #eef3ff; color: #35568f; }
+    .verify-state.pending::before { background: #4d73bd; }
+    .verify-intro { color: rgba(255,255,255,.88); overflow-wrap: anywhere; max-width: 62ch; }
+    .verify-badge { flex: 0 0 auto; padding: 9px 14px; border-radius: 999px; border: 1px solid rgba(255,255,255,.25); background: rgba(255,255,255,.1); font-size: .8rem; font-weight: 800; }
+    .verify-count { display: flex; align-items: center; gap: 18px; margin: 22px 0; padding: clamp(18px, 4vw, 26px); border-radius: 26px; background: rgba(255,255,255,.13); border: 1px solid rgba(255,255,255,.16); flex-wrap: wrap; }
+    .verify-count strong { display: block; font-size: clamp(4rem, 12vw, 6.5rem); line-height: .9; font-weight: 900; }
+    .verify-count span { display: block; text-transform: uppercase; letter-spacing: .14em; font-size: .78rem; font-weight: 800; color: rgba(255,255,255,.82); }
+    .verify-count small { display: block; margin-top: 6px; color: rgba(255,255,255,.9); font-size: .93rem; }
+    .verify-meta { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .verify-meta div { border: 1px solid rgba(255,255,255,.18); border-radius: 18px; padding: 14px 16px; background: rgba(255,255,255,.09); min-width: 0; }
+    .verify-meta span { display: block; color: rgba(255,255,255,.78); font-size: .78rem; text-transform: uppercase; letter-spacing: .08em; font-weight: 800; margin-bottom: 4px; }
+    .verify-meta strong { display: block; font-size: .99rem; overflow-wrap: anywhere; }
+    .verify-section-title { font-size: 1.25rem; margin: 26px 0 6px; }
+    .verify-section-note { color: rgba(255,255,255,.82); font-size: .9rem; margin-bottom: 12px; }
+    .verify-people { display: grid; gap: 10px; }
+    .verify-person { display: flex; align-items: flex-start; justify-content: space-between; gap: 15px; padding: 14px 16px; border: 1px solid rgba(255,255,255,.18); border-radius: 18px; background: rgba(255,255,255,.09); }
+    .verify-person-main { min-width: 0; }
+    .verify-person strong { display: block; font-size: 1.05rem; overflow-wrap: anywhere; }
+    .verify-person small { display: block; color: rgba(255,255,255,.8); overflow-wrap: anywhere; }
+    .verify-person-side { text-align: right; flex: 0 0 auto; }
+    .verify-role { display: inline-flex; padding: 4px 9px; border-radius: 999px; background: rgba(223,247,161,.2); border: 1px solid rgba(223,247,161,.4); color: #eaffc8; font-size: .7rem; font-weight: 900; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 5px; }
+    .verify-msg { margin-top: 18px; padding: 14px 16px; border-radius: 18px; background: rgba(10,38,24,.42); border: 1px solid rgba(255,255,255,.16); font-size: .92rem; color: rgba(255,255,255,.9); }
+    .verify-help { font-size: .88rem; color: rgba(255,255,255,.8); margin-top: 16px; line-height: 1.6; }
+    .verify-actions { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 22px; }
+    .verify-actions .pill-btn.outline { background: rgba(255,255,255,.92); }
+    .verify-empty { padding: 14px 16px; border-radius: 18px; background: rgba(255,255,255,.09); color: rgba(255,255,255,.85); }
+    @media (max-width: 620px) {
+      .verify-meta { grid-template-columns: 1fr; }
+      .verify-person { flex-direction: column; }
+      .verify-person-side { text-align: left; }
+      .verify-page { padding: 24px 0 48px; }
+    }
   </style>
 </head>
 <body>
   <main class="verify-page container">
     <div class="verify-top">
       <a class="brand" href="/"><span class="brand-logo">R</span><span class="brand-copy"><strong>Rodando UTP</strong><small>Rodando Parking</small></span></a>
-      <a class="pill-btn outline" href="/">Inicio</a>
+      <a class="pill-btn outline" href="/">Ir al inicio</a>
     </div>
-    <article class="card verify-pass">
-      <span class="eyebrow" style="color:#e8ffbc">Verificación de acceso</span>
-      <h1>Rodando Parking</h1>
-      <div class="verify-state" id="verifyState">Comprobando el pase...</div>
-      <p id="verifyIntro">Consulta en línea los datos del viaje y de las personas registradas.</p>
-      <div class="verify-count"><strong id="verifyCount">—</strong><span>Pasajeros confirmados</span></div>
+    <article class="card verify-pass" aria-live="polite">
+      <div class="verify-head">
+        <div>
+          <span class="eyebrow" style="color:#e8ffbc">Verificación de acceso</span>
+          <h1>Pase Rodando Parking</h1>
+          <div class="verify-state pending" id="verifyState">Consultando el pase...</div>
+          <p class="verify-intro" id="verifyIntro">Estamos comprobando la autenticidad, vigencia y ocupación del pase.</p>
+        </div>
+        <span class="verify-badge" id="verifyPrivacyBadge">Vista pública</span>
+      </div>
+
+      <div class="verify-count">
+        <div>
+          <strong id="verifyCount">—</strong>
+          <span>Ocupantes del vehículo</span>
+        </div>
+        <small id="verifyBreakdown">Conductor incluido en el conteo.</small>
+      </div>
+
       <div class="verify-meta" id="verifyMeta"></div>
-      <h2 style="font-size:1.35rem;margin:24px 0 12px">Integrantes del viaje</h2>
-      <div id="verifyPassengers"></div>
-      <p class="verify-help">Este pase es un comprobante digital del proyecto. Su aceptación para estacionamiento preferente depende de la autorización de la universidad.</p>
+
+      <h2 class="verify-section-title">Ocupantes autorizados</h2>
+      <p class="verify-section-note" id="verifyPeopleNote">El conductor y los pasajeros confirmados comparten este mismo folio.</p>
+      <div class="verify-people" id="verifyPassengers"></div>
+
+      <p class="verify-msg" id="verifyMessage"></p>
+      <p class="verify-help">Este pase acredita la ocupación compartida del vehículo y es personal e intransferible. La aceptación para estacionamiento preferente depende de la autorización de la universidad. La verificación pública no expone nombres completos, matrículas ni placas.</p>
+      <div class="verify-actions">
+        <a class="pill-btn solid" href="/#parking">Conocer Rodando Parking</a>
+        <a class="pill-btn outline" href="/">Volver al inicio</a>
+      </div>
     </article>
   </main>
-  <script src="/js/verificar-pase.js?v=6.1.0" defer></script>
+  <script src="/js/verificar-pase.js?v=6.4.1" defer></script>
 </body>
 </html>

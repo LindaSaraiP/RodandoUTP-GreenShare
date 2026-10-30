@@ -8,7 +8,8 @@
   <title>Rodando UTP GreenShare</title>
   <link rel="manifest" href="/manifest.webmanifest" />
   <link rel="icon" href="/img/icon-192.png" />
-  <link rel="stylesheet" href="/css/styles.css?v=6.3.0" />
+  <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
+  <link rel="stylesheet" href="/css/styles.css?v=6.4.1" />
 </head>
 <body>
   <div class="page-glow glow-1"></div>
@@ -36,6 +37,10 @@
           <b id="userShortName">Usuario</b>
         </button>
       </nav>
+      <button class="pill-btn solid nav-publish" type="button" id="publishNavBtn">
+        <span class="nav-publish-full">Publicar viaje</span>
+        <span class="nav-publish-short">Publicar</span>
+      </button>
     </div>
   </header>
 
@@ -45,26 +50,70 @@
         <div class="hero-copy card glass">
           <span class="eyebrow">Movilidad colaborativa universitaria</span>
           <h1>Compartimos destino. <span>Movemos un futuro más verde.</span></h1>
-          <p>Encuentra compañeros que van a la UTP, reserva asientos disponibles y gana EcoPuntos por contribuir a una movilidad más responsable.</p>
-          <form class="hero-search" id="searchForm">
+          <p>Encuentra compañeros que van a la UTP o que regresan desde el campus, reserva asientos disponibles y gana EcoPuntos por contribuir a una movilidad más responsable.</p>
+          <form class="hero-search search-panel" id="searchForm">
             <label>
-              <span>Origen</span>
+              <span>Zona de origen</span>
               <input type="text" id="originFilter" placeholder="Ej. Cholula" maxlength="60" />
+            </label>
+            <label>
+              <span>Zona de destino</span>
+              <input type="text" id="destinationFilter" placeholder="Ej. UTP o Amozoc" maxlength="90" />
             </label>
             <label>
               <span>Fecha</span>
               <input type="date" id="dateFilter" />
             </label>
             <label>
-              <span>Tipo de viaje</span>
+              <span>Hora desde</span>
+              <input type="time" id="timeFromFilter" />
+            </label>
+            <label>
+              <span>Hora hasta</span>
+              <input type="time" id="timeToFilter" />
+            </label>
+            <label>
+              <span>Lugares disponibles</span>
+              <select id="seatsMinFilter">
+                <option value="">Cualquiera</option>
+                <option value="1">1 o más</option>
+                <option value="2">2 o más</option>
+                <option value="3">3 o más</option>
+                <option value="4">4 o más</option>
+              </select>
+            </label>
+            <label>
+              <span>Sentido del viaje</span>
+              <select id="directionFilter">
+                <option value="">Todos los viajes</option>
+                <option value="to_utp">Hacia la UTP</option>
+                <option value="from_utp">Desde la UTP</option>
+              </select>
+            </label>
+            <label>
+              <span>Tipo de ruta</span>
               <select id="routeTypeFilter">
                 <option value="">Todos</option>
                 <option value="direct">Directo</option>
                 <option value="connection">Con conexión</option>
               </select>
             </label>
-            <button class="pill-btn solid" type="submit">Buscar</button>
+            <button class="pill-btn solid" type="submit">Buscar viajes</button>
           </form>
+          <div class="nearby-bar">
+            <button class="pill-btn outline" type="button" id="nearbyBtn">Buscar viajes cerca de mí</button>
+            <label class="nearby-radius">
+              <span>Radio</span>
+              <select id="radiusFilter">
+                <option value="1">1 km</option>
+                <option value="3">3 km</option>
+                <option value="5" selected>5 km</option>
+                <option value="10">10 km</option>
+              </select>
+            </label>
+            <button class="text-btn" type="button" id="clearNearby" hidden>Quitar búsqueda por cercanía</button>
+            <span class="helper small" id="nearbyStatus" role="status" aria-live="polite"></span>
+          </div>
           <div class="hero-actions">
             <button class="pill-btn solid" id="publishBtn">Publicar viaje</button>
             <a class="pill-btn outline" href="#impacto">Ver estadísticas</a>
@@ -80,7 +129,7 @@
           <div class="visual-blob"></div>
           <div class="visual-card route-preview">
             <span class="chip green">Ruta ecológica</span>
-            <h3>Cholula a UTP</h3>
+            <p class="visual-title">Cholula a UTP</p>
             <p>Viaje con conexión en <strong>Parque Puebla</strong></p>
             <div class="route-line">
               <span></span><span></span><span></span>
@@ -97,13 +146,13 @@
             </div>
             <div>
               <small>EcoRodando</small>
-              <h3>Tu árbol crece contigo</h3>
+              <p class="visual-title">Tu árbol crece contigo</p>
               <p>Suma puntos y desbloquea nuevos niveles.</p>
             </div>
           </div>
           <div class="visual-card parking-preview">
             <span class="chip lime">Rodando Parking</span>
-            <strong class="parking-big">3 pasajeros</strong>
+            <strong class="parking-big">3 ocupantes</strong>
             <small>Acceso más visible para guardias</small>
           </div>
         </div>
@@ -156,6 +205,17 @@
         <p id="resultsSummary">Cargando viajes...</p>
         <button class="text-btn" id="clearFilters">Limpiar filtros</button>
       </div>
+      <article class="card rides-map-card" id="ridesMapCard">
+        <div class="rides-map-head">
+          <div>
+            <span class="eyebrow">Mapa de rutas</span>
+            <h3>Puntos de encuentro reales</h3>
+            <p class="helper" id="ridesMapSummary">Activa “Buscar viajes cerca de mí” para ordenar por distancia.</p>
+          </div>
+          <span class="state-badge" id="mapsState">OpenStreetMap</span>
+        </div>
+        <div id="ridesMap" class="rides-map" role="application" aria-label="Mapa de viajes disponibles"></div>
+      </article>
       <div class="rides-grid" id="ridesGrid"></div>
       <div class="empty-state card" id="ridesEmpty" hidden>
         <h3>No hay viajes con esos filtros</h3>
@@ -167,41 +227,43 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">Rodando Parking</span>
-          <h2>Un pase digital visible para entrar más fácil</h2>
-          <p>Cuando el conductor lleva pasajeros confirmados, puede generar un pase colaborativo. El diseño muestra en grande la cantidad de pasajeros y también lista sus nombres, carreras o matrículas. Incluye un QR visual de validación.</p>
+          <h2>Un pase digital verificable para entrar más fácil</h2>
+          <p>Cuando el conductor lleva pasajeros confirmados puede emitir un pase colaborativo. El conductor y cada pasajero confirmado reciben el mismo folio, con el total de ocupantes, nombres, matrículas, vehículo, placas y un QR grande de verificación.</p>
         </div>
       </div>
       <div class="parking-showcase">
         <article class="card parking-info">
           <h3>Condiciones para generar el pase</h3>
           <ol>
-            <li>La ruta debe participar en Rodando Parking.</li>
-            <li>Debe haber por lo menos 2 pasajeros confirmados.</li>
-            <li>Solo el conductor puede generar el pase.</li>
-            <li>La información de pasajeros debe verse claramente.</li>
+            <li>La ruta debe participar en Rodando Parking y no estar cancelada.</li>
+            <li>Debe existir al menos un pasajero confirmado.</li>
+            <li>El conductor o un pasajero confirmado del viaje pueden emitirlo.</li>
+            <li>El total de ocupantes suma 1 conductor más las plazas confirmadas.</li>
+            <li>El pase se invalida automáticamente si el viaje se cancela.</li>
           </ol>
-          <p class="helper">Dentro del panel de usuario podrás generar el pase. Si ya existe, se mostrará actualizado y listo para visualizarlo.</p>
+          <p class="helper">Desde tu panel puedes generar el pase, descargarlo en PDF real o guardarlo como imagen PNG.</p>
         </article>
         <article class="card parking-pass-demo" id="parkingPassDemo">
-          <span class="chip lime">Vista previa</span>
+          <span class="chip lime">Vista previa del pase</span>
           <div class="parking-pass-hero">
             <div>
               <small>Pase Rodando Parking</small>
               <h3 id="demoPassCode">Sin generar</h3>
             </div>
             <div class="passenger-count-block">
-              <span>Ocupantes</span>
+              <span>Ocupantes del vehículo</span>
               <strong id="demoPassengerCount">0</strong>
+              <small>Conductor incluido</small>
             </div>
           </div>
           <div class="passenger-list" id="demoPassengerList">
-            <p class="helper">Cuando generes un pase real, aquí verás los nombres y carreras de los pasajeros.</p>
+            <p class="helper">Cuando generes un pase real, aquí verás a todos los ocupantes y sus matrículas.</p>
           </div>
           <div class="parking-pass-footer">
             <div class="qr-box" id="demoQr"></div>
             <div>
-              <p><strong>Objetivo:</strong> que el guardia identifique con rapidez que el vehículo llega con ocupación compartida.</p>
-              <p class="helper">El número de pasajeros se muestra de manera mucho más visible que el resto de datos.</p>
+              <p><strong>Verificación pública:</strong> el guardia puede escanear el QR para comprobar autenticidad, vigencia y ocupación sin exponer datos personales.</p>
+              <p class="helper">La versión privada incluye nombres completos, matrículas y placas.</p>
             </div>
           </div>
         </article>
@@ -212,24 +274,45 @@
       <div class="section-head">
         <div>
           <span class="eyebrow">EcoRodando</span>
-          <h2>Un árbol interactivo que respira con tus EcoPuntos</h2>
-          <p>La idea es que el progreso ecológico se sienta vivo. El árbol crece, respira y mejora de nivel conforme publicas, reservas y completas viajes.</p>
+          <h2>Mi mundo EcoRodando</h2>
+          <p>Tu progreso ecológico se convierte en un escenario vivo. Cada EcoPunto ganado con viajes válidos hace crecer el terreno, la vegetación, el camino y la comunidad.</p>
         </div>
       </div>
       <div class="eco-layout">
-        <article class="card eco-tree-card">
-          <div class="tree-scene">
-            <div class="tree-breath stage-1" id="ecoTree"></div>
-            <div class="floating-leaf leaf-1"></div>
-            <div class="floating-leaf leaf-2"></div>
-            <div class="floating-leaf leaf-3"></div>
+        <article class="card eco-tree-card eco-world-card">
+          <div class="eco-world-top">
+            <div>
+              <small>Nivel actual</small>
+              <strong id="ecoWorldStageName">Semilla</strong>
+            </div>
+            <span class="chip green" id="ecoWorldStageChip">Nivel 1 de 5</span>
           </div>
+          <div class="eco-world-scene" id="ecoWorldScene" role="img" aria-label="Escenario ecológico que evoluciona con tus EcoPuntos">
+            <div class="eco-world-sky"></div>
+            <div class="eco-world-sun"></div>
+            <div class="eco-world-cloud cloud-a"></div>
+            <div class="eco-world-cloud cloud-b"></div>
+            <div class="eco-world-hill hill-back"></div>
+            <div class="eco-world-hill hill-front"></div>
+            <div class="eco-world-ground"></div>
+            <div class="eco-world-path"></div>
+            <div class="eco-world-plants" id="ecoWorldPlants"></div>
+            <div class="eco-world-house" id="ecoWorldHouse"></div>
+            <div class="eco-world-community" id="ecoWorldCommunity"></div>
+            <div class="eco-world-badge" id="ecoWorldBadge" hidden>Embajador Verde</div>
+            <div class="eco-level-flash" id="ecoLevelFlash" hidden></div>
+          </div>
+          <div class="eco-world-progress">
+            <div class="eco-progress"><span id="ecoWorldProgressBar"></span></div>
+            <small id="ecoWorldProgressText">Inicia sesión para ver tu mundo crecer.</small>
+          </div>
+          <div class="eco-world-elements" id="ecoWorldElements"></div>
           <div class="eco-legend">
             <span>Semilla</span>
             <span>Brote</span>
-            <span>Raíz Verde</span>
-            <span>Árbol Vivo</span>
-            <span>Bosque UTP</span>
+            <span>Ruta Verde</span>
+            <span>Conductor Verde</span>
+            <span>Embajador Verde</span>
           </div>
         </article>
         <article class="card eco-side-panel">
@@ -288,6 +371,59 @@
         <div class="card-head"><h3>Usuarios registrados</h3></div>
         <div class="admin-users-list" id="adminUsers"></div>
       </div>
+      <article class="card eco-lab" id="ecoLab">
+        <div class="eco-lab-head">
+          <div>
+            <span class="admin-sim-label">MODO SIMULACIÓN — SOLO ADMINISTRACIÓN</span>
+            <h3>Laboratorio EcoRodando</h3>
+            <p>Demuestra la evolución del minijuego sin escribir en la base de datos ni alterar EcoPuntos, niveles o estadísticas reales.</p>
+          </div>
+          <span class="state-badge">Datos reales protegidos</span>
+        </div>
+        <div class="eco-lab-grid">
+          <div class="eco-lab-controls">
+            <label><span>Nivel para simular</span>
+              <select id="ecoLabLevel">
+                <option value="1">Nivel 1 — Semilla</option>
+                <option value="2">Nivel 2 — Brote</option>
+                <option value="3">Nivel 3 — Ruta Verde</option>
+                <option value="4">Nivel 4 — Conductor Verde</option>
+                <option value="5">Nivel 5 — Embajador Verde</option>
+              </select>
+            </label>
+            <label><span>EcoPuntos simulados</span>
+              <input type="number" id="ecoLabPoints" min="0" max="900" value="120" step="10" />
+            </label>
+            <input type="range" id="ecoLabRange" min="0" max="900" step="10" value="120" />
+            <div class="eco-lab-actions">
+              <button class="pill-btn solid" type="button" id="ecoLabAnimate">Animar evolución</button>
+              <button class="pill-btn outline" type="button" id="ecoLabReset">Reiniciar simulación</button>
+            </div>
+            <p class="helper small" id="ecoLabStatus">La simulación es local y no genera viajes ni estadísticas.</p>
+          </div>
+          <div class="eco-lab-preview">
+            <div class="eco-world-scene eco-lab-scene" id="ecoLabScene" role="img" aria-label="Vista previa simulada del mundo EcoRodando">
+              <div class="eco-world-sky"></div>
+              <div class="eco-world-sun"></div>
+              <div class="eco-world-cloud cloud-a"></div>
+              <div class="eco-world-cloud cloud-b"></div>
+              <div class="eco-world-hill hill-back"></div>
+              <div class="eco-world-hill hill-front"></div>
+              <div class="eco-world-ground"></div>
+              <div class="eco-world-path"></div>
+              <div class="eco-world-plants" id="ecoLabPlants"></div>
+              <div class="eco-world-house" id="ecoLabHouse"></div>
+              <div class="eco-world-community" id="ecoLabCommunity"></div>
+              <div class="eco-world-badge" id="ecoLabBadge" hidden>Embajador Verde</div>
+            </div>
+            <div class="eco-lab-readout">
+              <strong id="ecoLabLevelName">Semilla</strong>
+              <span id="ecoLabPointsLabel">0 EcoPuntos simulados</span>
+              <small id="ecoLabUnlocked">Elementos desbloqueados: terreno y primera planta.</small>
+            </div>
+          </div>
+        </div>
+      </article>
     </section>
 
     <section class="container section dashboard" id="dashboard" hidden>
@@ -329,7 +465,8 @@
       <div>
         <strong>Tecnologías</strong>
         <span>HTML, CSS y JavaScript</span>
-        <span>Node.js y SQLite</span>
+        <span>Node.js y PostgreSQL</span>
+        <span>Leaflet y OpenStreetMap</span>
         <span>Manifest y Service Worker</span>
       </div>
       <div>
@@ -359,35 +496,70 @@
       <p class="helper small" id="allowedDomainsHelp"></p>
       <p class="error-text" id="authError" hidden></p>
       <div class="modal-actions">
-        <button class="pill-btn solid" id="authSubmit">Entrar</button>
+        <button class="pill-btn solid" id="authSubmit" type="submit">Entrar</button>
         <button type="button" class="text-btn" id="switchAuthMode">¿No tienes cuenta? Regístrate</button>
       </div>
     </form>
   </dialog>
 
   <dialog class="modal" id="publishModal">
-    <form method="dialog" class="modal-card wide" id="publishForm">
+    <form method="dialog" class="modal-card wide publish-modal-card" id="publishForm">
       <button class="modal-close" type="button" data-close="publishModal">×</button>
       <span class="eyebrow">Publicar viaje</span>
       <h3>Crear una nueva ruta</h3>
-      <p>Registra un trayecto real hacia la UTP. Puedes elegir ruta directa o con punto de conexión.</p>
+      <p>Publica un trayecto real hacia la UTP o de regreso desde el campus. Los mapas permiten guardar coordenadas reales del origen, destino y punto de encuentro.</p>
       <div class="form-grid two-col">
-        <label><span>Origen</span><input name="origin" maxlength="60" required /></label>
-        <label><span>Punto de encuentro</span><input name="pickupPoint" maxlength="90" required /></label>
+        <label><span>Sentido del viaje</span>
+          <select name="direction" id="publishDirection">
+            <option value="to_utp">Hacia la UTP</option>
+            <option value="from_utp">Desde la UTP</option>
+          </select>
+        </label>
+        <label><span>Destino</span><input name="destination" id="publishDestination" maxlength="90" value="Universidad Tecnológica de Puebla" required /></label>
+        <label><span>Zona de origen</span><input name="origin" id="publishOrigin" maxlength="60" required placeholder="Ej. Cholula" /></label>
+        <label><span>Punto de encuentro</span><input name="pickupPoint" id="publishPickup" maxlength="90" required placeholder="Lugar exacto de salida" /></label>
         <label><span>Fecha y hora</span><input name="departureAt" type="datetime-local" required /></label>
         <label><span>Lugares disponibles</span><select name="seatsTotal"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option><option>6</option></select></label>
         <label><span>Aportación (MXN)</span><input name="contribution" type="number" min="0" max="500" step="1" required /></label>
-        <label><span>Vehículo</span><input name="vehicle" maxlength="60" required /></label>
+        <label><span>Vehículo (marca y modelo)</span><input name="vehicle" maxlength="60" required /></label>
         <label><span>Color</span><input name="color" maxlength="30" required /></label>
-        <label><span>Últimos 4 de placa</span><input name="plateLast4" maxlength="4" required /></label>
+        <label><span>Placa completa</span><input name="plateFull" maxlength="12" required placeholder="Ej. UTP123A" autocomplete="off" /></label>
         <label><span>Tipo de ruta</span><select name="routeType" id="routeTypeSelect"><option value="direct">Directa</option><option value="connection">Con conexión</option></select></label>
         <label id="connectionHubWrap" hidden><span>Punto de conexión</span><input name="connectionHub" maxlength="80" /></label>
-        <label class="checkbox-row"><input type="checkbox" name="parkingEligible" value="1" /><span>Participar en Rodando Parking</span></label>
-        <label class="full-width"><span>Notas</span><textarea name="notes" maxlength="220" rows="3"></textarea></label>
+        <label class="checkbox-row full-width"><input type="checkbox" name="parkingEligible" value="1" /><span>Participar en Rodando Parking</span></label>
+        <label class="full-width"><span>Notas</span><textarea name="notes" maxlength="220" rows="2"></textarea></label>
       </div>
+
+      <section class="publish-map-section">
+        <div class="publish-map-head">
+          <div>
+            <h4>Ubicación de la ruta</h4>
+            <p class="helper small">Busca una dirección o toca el mapa. Después de colocar un punto, arrástralo para corregirlo.</p>
+          </div>
+          <span class="state-badge" id="publishMapMode">Marca: origen</span>
+        </div>
+        <div class="map-tools">
+          <input type="search" id="placeSearchInput" placeholder="Buscar dirección o lugar en Puebla" maxlength="120" />
+          <button class="pill-btn outline mini" type="button" id="placeSearchBtn">Buscar lugar</button>
+          <button class="pill-btn outline mini map-mode-btn active" type="button" data-map-mode="origin">Marcar origen</button>
+          <button class="pill-btn outline mini map-mode-btn" type="button" data-map-mode="destination">Marcar destino</button>
+          <button class="pill-btn outline mini map-mode-btn" type="button" data-map-mode="pickup">Marcar encuentro</button>
+        </div>
+        <div id="publishMap" class="publish-map" role="application" aria-label="Mapa para seleccionar origen, destino y punto de encuentro"></div>
+        <div class="map-coordinates">
+          <div><span>Origen</span><b id="originCoords">Sin coordenadas</b></div>
+          <div><span>Destino</span><b id="destinationCoords">Sin coordenadas</b></div>
+          <div><span>Punto de encuentro</span><b id="pickupCoords">Sin coordenadas</b></div>
+        </div>
+        <input type="hidden" name="originLat" id="originLat" /><input type="hidden" name="originLng" id="originLng" />
+        <input type="hidden" name="destinationLat" id="destinationLat" /><input type="hidden" name="destinationLng" id="destinationLng" />
+        <input type="hidden" name="pickupLat" id="pickupLat" /><input type="hidden" name="pickupLng" id="pickupLng" />
+        <p class="helper small" id="publishMapStatus">Marca el origen en el mapa para que tu viaje aparezca en la búsqueda por cercanía. Las rutas antiguas sin coordenadas siguen funcionando.</p>
+      </section>
+
       <div class="modal-actions right">
         <button type="button" class="pill-btn outline" data-close="publishModal">Cancelar</button>
-        <button class="pill-btn solid">Publicar viaje</button>
+        <button class="pill-btn solid" type="submit" id="publishSubmit">Publicar viaje</button>
       </div>
     </form>
   </dialog>
@@ -402,7 +574,7 @@
       <label><span>Lugares a reservar</span><select id="reserveSeats"></select></label>
       <div class="modal-actions right">
         <button type="button" class="pill-btn outline" data-close="reserveModal">Cancelar</button>
-        <button class="pill-btn solid">Confirmar reserva</button>
+        <button class="pill-btn solid" type="submit" id="reserveSubmit">Confirmar reserva</button>
       </div>
     </form>
   </dialog>
@@ -421,8 +593,9 @@
   </dialog>
 
   <div class="toast-stack" id="toastStack"></div>
-  <script src="/js/qr.js?v=6.1.0" defer></script>
-  <script src="/js/notifications.js?v=6.3.0" defer></script>
-  <script src="/js/app.js?v=6.3.0" defer></script>
+  <script src="/vendor/leaflet/leaflet.js?v=1.9.4" defer></script>
+  <script src="/js/qr.js?v=6.4.1" defer></script>
+  <script src="/js/notifications.js?v=6.4.1" defer></script>
+  <script src="/js/app.js?v=6.4.1" defer></script>
 </body>
 </html>

@@ -1,5 +1,6 @@
--- Rodando UTP GreenShare v6.2: esquema PostgreSQL/Neon.
+-- Rodando UTP GreenShare v6.4: esquema PostgreSQL/Neon.
 -- Idempotente: ejecutar de nuevo NO borra información.
+-- Las columnas nuevas se agregan con ALTER TABLE ... IF NOT EXISTS para conservar datos.
 CREATE TABLE IF NOT EXISTS users (
   id BIGSERIAL PRIMARY KEY,
   name VARCHAR(100) NOT NULL,
@@ -43,6 +44,34 @@ CREATE TABLE IF NOT EXISTS rides (
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
+-- Migraciones seguras de rutas: sentido del viaje, placas completas y geolocalización.
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS direction VARCHAR(20) NOT NULL DEFAULT 'to_utp';
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS plate_full VARCHAR(16) NOT NULL DEFAULT '';
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS origin_lat DOUBLE PRECISION;
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS origin_lng DOUBLE PRECISION;
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS destination_lat DOUBLE PRECISION;
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS destination_lng DOUBLE PRECISION;
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS pickup_lat DOUBLE PRECISION;
+ALTER TABLE rides ADD COLUMN IF NOT EXISTS pickup_lng DOUBLE PRECISION;
+
+-- Pases emitidos. Se conserva rides.parking_code por compatibilidad con pases históricos.
+CREATE TABLE IF NOT EXISTS parking_passes (
+  id BIGSERIAL PRIMARY KEY,
+  ride_id BIGINT NOT NULL UNIQUE REFERENCES rides(id) ON DELETE CASCADE,
+  code TEXT NOT NULL UNIQUE,
+  status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active','cancelled')),
+  generated_by BIGINT REFERENCES users(id) ON DELETE SET NULL,
+  generated_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  cancelled_at TIMESTAMPTZ
+);
+
+-- Migra pases ya emitidos sin crear folios nuevos.
+INSERT INTO parking_passes (ride_id, code, status, generated_at)
+SELECT id, parking_code, 'active', COALESCE(parking_generated_at, NOW())
+FROM rides
+WHERE parking_code <> ''
+ON CONFLICT (ride_id) DO NOTHING;
+
 CREATE TABLE IF NOT EXISTS reservations (
   id BIGSERIAL PRIMARY KEY,
   ride_id BIGINT NOT NULL REFERENCES rides(id) ON DELETE CASCADE,
@@ -66,6 +95,9 @@ CREATE INDEX IF NOT EXISTS idx_reservations_ride ON reservations(ride_id);
 CREATE INDEX IF NOT EXISTS idx_eco_events_user ON eco_events(user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token ON sessions(token_hash);
 CREATE UNIQUE INDEX IF NOT EXISTS idx_rides_parking_code ON rides(parking_code) WHERE parking_code <> '';
+CREATE INDEX IF NOT EXISTS idx_rides_direction ON rides(direction, departure_at);
+CREATE INDEX IF NOT EXISTS idx_rides_pickup_coords ON rides(pickup_lat, pickup_lng) WHERE pickup_lat IS NOT NULL AND pickup_lng IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_parking_passes_code ON parking_passes(code);
 
 
 -- Suscripciones por dispositivo. Una cuenta puede tener varias.
