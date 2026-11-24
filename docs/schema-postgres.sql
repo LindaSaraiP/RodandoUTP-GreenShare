@@ -122,3 +122,20 @@ CREATE TABLE IF NOT EXISTS app_notifications (
 );
 CREATE INDEX IF NOT EXISTS idx_app_notifications_user_date
   ON app_notifications(user_id, created_at DESC);
+
+-- Rodando Plus: membresía con pago simulado. Solo se guardan los últimos 4 dígitos.
+CREATE TABLE IF NOT EXISTS memberships (
+  id BIGSERIAL PRIMARY KEY,
+  folio VARCHAR(20) UNIQUE NOT NULL,
+  user_id BIGINT NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  plan VARCHAR(40) NOT NULL,
+  amount_cents INTEGER NOT NULL CHECK (amount_cents >= 0),
+  card_last4 CHAR(4) NOT NULL,
+  receipt_token TEXT UNIQUE NOT NULL,
+  status VARCHAR(20) NOT NULL DEFAULT 'active' CHECK (status IN ('active','cancelled','expired')),
+  email_status VARCHAR(20) NOT NULL DEFAULT 'pending' CHECK (email_status IN ('pending','sent','error')),
+  starts_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  expires_at TIMESTAMPTZ NOT NULL
+);
+CREATE UNIQUE INDEX IF NOT EXISTS idx_memberships_one_active ON memberships(user_id) WHERE status='active';
+CREATE INDEX IF NOT EXISTS idx_memberships_user ON memberships(user_id, id DESC);
