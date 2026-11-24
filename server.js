@@ -7,6 +7,7 @@ const crypto = require('node:crypto');
 const pool = require('./db');
 const { createPushService } = require('./push-notifications');
 const { buildParkingPassPdf } = require('./parking-pass-pdf');
+const { createMemberships } = require('./lib/memberships');
 
 const ROOT = __dirname;
 const PUBLIC_ROOT = path.join(ROOT, 'public');
@@ -197,6 +198,7 @@ function requireCsrf(req, res, session) {
   return true;
 }
 
+const memberships = createMemberships({ pool, requireAuth, requireCsrf, json, readBody, rateLimit, randomToken, appBaseUrl, errorWithStatus });
 const pushService = createPushService({ pool, requireAuth, requireAdmin, requireCsrf, json, readBody, rateLimit });
 
 const ECO_LEVELS = [
@@ -357,6 +359,7 @@ async function authorizedPass(req, rideId, userId, role) {
 async function handleApi(req, res, url, ip) {
   const method = req.method, pathname = url.pathname;
   if (await pushService.handle(req, res, url, ip)) return;
+  if (await memberships.handle(req, res, url, ip)) return;
   if (method === 'GET' && pathname === '/api/health') {
     await pool.query('SELECT 1');
     return json(res, 200, { ok: true, version: APP_VERSION, time: nowIso(), database: 'postgresql' });

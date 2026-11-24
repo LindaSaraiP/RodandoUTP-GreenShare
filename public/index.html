@@ -10,6 +10,7 @@
   <link rel="icon" href="/img/icon-192.png" />
   <link rel="stylesheet" href="/vendor/leaflet/leaflet.css" />
   <link rel="stylesheet" href="/css/styles.css?v=6.4.1" />
+  <link rel="stylesheet" href="/css/plus.css?v=1.0.0" />
 </head>
 <body>
   <div class="page-glow glow-1"></div>
@@ -27,6 +28,7 @@
         <a href="#impacto">Impacto ecológico</a>
         <a href="#parking">Rodando Parking</a>
         <a href="#ecorodando">EcoRodando</a>
+        <a href="#plus">Plus</a>
         <button class="pill-btn outline" type="button" id="notificationsNav" hidden>Avisos<span id="notificationUnread" hidden></span></button>
         <a href="#adminPanel" id="adminLink" hidden>Administración</a>
         <button class="pill-btn outline" id="installBtn" hidden>Instalar PWA</button>
@@ -332,6 +334,24 @@
     </section>
 
 
+    <section class="container section" id="plus">
+      <div class="plus-head">
+        <span class="eyebrow">Membresía</span>
+        <h2>Rodando Plus</h2>
+        <p class="helper">Usar Rodando UTP siempre es gratis. Plus es la propuesta de suscripción del proyecto; el pago es simulado.</p>
+      </div>
+      <div class="plus-status" id="plusStatus" hidden></div>
+      <div class="plus-grid">
+        <article class="card plus-plan"><h3>Básico</h3><div class="plus-price">$0 <small>siempre</small></div>
+          <ul><li>Buscar y reservar viajes</li><li>Publicar tu ruta</li><li>EcoPuntos</li></ul><a class="pill-btn outline" href="#viajes">Usar gratis</a></article>
+        <article class="card plus-plan featured"><h3>Plus Mensual</h3><div class="plus-price">$49 <small>/ 30 días</small></div>
+          <ul><li>Todo lo de Básico</li><li>Insignia Plus</li><li>Recibo de compra</li></ul><button class="pill-btn solid" type="button" data-plus-plan="plus-mensual">Obtener Plus · $49</button></article>
+        <article class="card plus-plan"><h3>Plus Cuatrimestral</h3><div class="plus-price">$149 <small>/ 120 días</small></div>
+          <ul><li>Todo lo de Plus Mensual</li><li>Ahorras $47</li></ul><button class="pill-btn solid" type="button" data-plus-plan="plus-cuatrimestral">Obtener Plus · $149</button></article>
+      </div>
+      <dialog class="plus-modal" id="plusModal" aria-label="Pago de Rodando Plus"><div id="plusModalBody"></div></dialog>
+    </section>
+
     <section class="container section" id="avisos" hidden>
       <div class="section-head">
         <div>
@@ -597,5 +617,6 @@
   <script src="/js/qr.js?v=6.4.1" defer></script>
   <script src="/js/notifications.js?v=6.4.1" defer></script>
   <script src="/js/app.js?v=6.4.1" defer></script>
+  <script src="/js/plus.js?v=1.0.0" defer></script>
 </body>
 </html>
