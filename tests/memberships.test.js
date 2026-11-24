@@ -34,3 +34,16 @@ test('el esquema permite una sola membresía activa y nunca guarda el número de
   assert.match(schema, /CREATE UNIQUE INDEX IF NOT EXISTS idx_memberships_one_active/);
   assert.doesNotMatch(read('public/js/plus.js'), /body: \{[^}]*(cvv|cardNumber)/);
 });
+
+test('reenviar el recibo usa el correo de la cuenta y marca el estado', async () => {
+  const sent = [], sql = [], out = [];
+  const row = { id: 1, folio: 'RP-1', plan: 'plus-mensual', amount_cents: 4900, receipt_token: 't', expires_at: new Date() };
+  const m = createMemberships({ pool: { query: async (q, p) => { sql.push([q, p]); return { rows: [row] }; } },
+    requireAuth: async () => ({ row: { user_id: 1, name: 'Ana', email: 'ana@alumno.utpuebla.edu.mx' } }), requireCsrf: () => true,
+    rateLimit: () => true, appBaseUrl: () => 'http://x', json: (res, status) => out.push(status), sendMail: async msg => sent.push(msg) });
+  assert.equal(await m.handle({ method: 'POST' }, {}, { pathname: '/api/membership/email' }, 'ip'), true);
+  assert.equal(out[0], 200);
+  assert.equal(sent[0].to, 'ana@alumno.utpuebla.edu.mx');
+  assert.match(sent[0].text, /pago es simulado/);
+  assert.ok(sql.some(([q, p]) => /email_status/.test(q) && p[0] === 'sent'));
+});

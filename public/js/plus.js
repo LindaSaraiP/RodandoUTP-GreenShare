@@ -7,7 +7,7 @@
     'plus-cuatrimestral': { name: 'Rodando Plus · Cuatrimestral', price: 149 }
   };
   const status = $('#plusStatus'), modal = $('#plusModal'), body = $('#plusModalBody');
-  let membership = null;
+  let membership = null, emailEnabled = false;
   const longDate = v => new Date(v).toLocaleDateString('es-MX', { day: 'numeric', month: 'long', year: 'numeric' });
 
   function render() {
@@ -17,7 +17,15 @@
     $('#userMenuBtn').insertAdjacentHTML('beforeend', '<span class="plus-badge">PLUS</span>');
     status.innerHTML = `<div><strong>⭐ ${htmlEscape(membership.planName)}</strong><small>Folio ${htmlEscape(membership.folio)} · vigente hasta el ${longDate(membership.expiresAt)} ·
       <a href="${htmlEscape(membership.receiptUrl)}" target="_blank" rel="noopener">ver recibo</a></small></div>
-      <button class="pill-btn outline" type="button" id="plusCancel">Cancelar membresía</button>`;
+      <div class="plus-buttons">${emailEnabled ? '<button class="pill-btn outline" type="button" id="plusEmail">Enviar recibo a mi correo</button>' : ''}
+      <button class="pill-btn outline" type="button" id="plusCancel">Cancelar membresía</button></div>`;
+    $('#plusEmail')?.addEventListener('click', async e => {
+      const button = e.currentTarget;
+      setBusy(button, true, 'Enviando…');
+      try { const data = await api('/api/membership/email', { method: 'POST' }); toast(`Recibo enviado a ${data.email}.`); }
+      catch (err) { toast(err.message, 'error'); }
+      finally { setBusy(button, false); }
+    });
     $('#plusCancel').addEventListener('click', async e => {
       if (!confirm('¿Cancelar tu membresía Rodando Plus?')) return;
       setBusy(e.currentTarget, true);
@@ -29,10 +37,11 @@
 
   async function load() {
     const user = state.user?.id ?? null;
-    let found = null;
-    if (user) { try { found = (await api('/api/membership')).membership; } catch { found = null; } }
+    let found = null, mail = false;
+    if (user) { try { const data = await api('/api/membership'); found = data.membership; mail = data.emailEnabled; } catch { found = null; } }
     if (user !== (state.user?.id ?? null)) return;   // cambió la sesión mientras se consultaba
     membership = found;
+    emailEnabled = mail;
     render();
   }
 
@@ -64,6 +73,7 @@
       try {
         const data = await api('/api/membership', { method: 'POST', body: { plan: planId, cardLast4: digits.slice(-4) } });
         membership = data.membership;
+        emailEnabled = data.emailEnabled;
         render();
         body.innerHTML = `<h3>¡Pago aprobado! Bienvenido a Plus ⭐</h3><div class="plus-receipt">
           <div><span>Folio</span><b>${htmlEscape(membership.folio)}</b></div><div><span>Plan</span><b>${htmlEscape(membership.planName)}</b></div>

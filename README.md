@@ -142,3 +142,15 @@ RodandoUTP_GreenShare_PostgreSQL/
   scripts/import-sqlite.js
   public/...
 ```
+
+## Recibo de Rodando Plus por correo
+
+El recibo se envía al comprar y con el botón **Enviar recibo a mi correo**. Para activarlo, agrega a `.env` (nunca al repositorio):
+
+```
+SMTP_USER=cuenta@gmail.com
+SMTP_PASS=contraseña de aplicación de 16 letras
+```
+
+Opcionales: `SMTP_HOST` (smtp.gmail.com) y `SMTP_PORT` (465). Sin estas variables el recibo solo se ve en la app.
+El plan gratuito de Render bloquea los puertos SMTP 25, 465 y 587.

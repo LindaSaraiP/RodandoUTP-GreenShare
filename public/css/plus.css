@@ -7,6 +7,7 @@
 .plus-plan ul{margin:0;padding-left:20px;line-height:1.9;flex:1}
 .plus-status{display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;padding:20px 24px;margin-bottom:22px;border-radius:var(--radius-lg);background:linear-gradient(120deg,var(--green-900),var(--green-700));color:#fff}
 .plus-status[hidden]{display:none}
+.plus-buttons{display:flex;flex-wrap:wrap;gap:10px}
 .plus-status small{display:block;opacity:.85}
 .plus-status a{text-decoration:underline}
 .plus-badge{background:var(--lime);color:var(--green-900);border-radius:99px;font-size:.7rem;font-weight:800;padding:2px 8px;margin-left:6px}
